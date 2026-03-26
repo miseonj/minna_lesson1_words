@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>みんなの日本語 1과 정리</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', 'Malgun Gothic', sans-serif;
+  background: #F0F4F8;
+  padding: 24px 16px 48px;
+  color: #1A3550;
+}
+.page-title { text-align: center; margin-bottom: 28px; }
+.page-title h1 { font-size: 12px; color: #999; letter-spacing: 2px; margin-bottom: 4px; }
+.page-title h2 { font-size: 24px; font-weight: 900; color: #1A3550; }
+
+.section { max-width: 680px; margin: 0 auto 32px; }
+.section-title {
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 14px;
+}
+.section-title .badge {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900; color: white; flex-shrink: 0;
+}
+.badge-teal { background: #28B4A6; }
+.badge-purple { background: #9B59B6; }
+.badge-orange { background: #E67E22; }
+.section-title h3 { font-size: 17px; font-weight: 900; color: #1A3550; }
+
+/* ===== 문형 카드 ===== */
+.pattern-card {
+  background: white; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08); margin-bottom: 12px;
+}
+.pattern-head {
+  display: flex; align-items: center;
+  padding: 12px 18px; gap: 12px;
+}
+.pattern-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #1A3550; color: white;
+  font-size: 12px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.pattern-jp {
+  font-size: 18px; font-weight: 900; color: #1A3550;
+  font-family: 'Noto Sans JP', sans-serif; flex: 1;
+}
+.pattern-ko { font-size: 12px; color: #888; font-weight: 400; }
+
+.pattern-card.positive .pattern-head { border-left: 5px solid #1A3550; }
+.pattern-card.negative .pattern-head { border-left: 5px solid #E67E22; }
+.pattern-card.question .pattern-head { border-left: 5px solid #9B59B6; }
+.pattern-card.also .pattern-head { border-left: 5px solid #28B4A6; }
+.pattern-card.no .pattern-head { border-left: 5px solid #27AE60; }
+.pattern-card.san .pattern-head { border-left: 5px solid #E74C3C; }
+
+.pattern-divider { height: 1px; background: #EEF2F6; margin: 0 18px; }
+.pattern-examples { padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 10px; }
+.example { display: flex; flex-direction: column; gap: 3px; }
+.ex-jp {
+  font-size: 15px; font-weight: 700; color: #1A3550;
+  font-family: 'Noto Sans JP', sans-serif; line-height: 1.6;
+}
+.ex-jp .hl { color: #28B4A6; }
+.ex-jp .hl-red { color: #E67E22; }
+.ex-jp .hl-purple { color: #9B59B6; }
+.ex-jp .hl-green { color: #27AE60; }
+.ex-jp .hl-crimson { color: #E74C3C; }
+.ex-ko { font-size: 12px; color: #888; }
+
+/* ===== 표현 카드 ===== */
+.expr-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+@media (max-width: 480px) { .expr-grid { grid-template-columns: 1fr; } }
+.expr-card {
+  background: white; border-radius: 14px; padding: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; gap: 6px;
+  border-top: 4px solid #28B4A6;
+}
+.expr-card.purple { border-top-color: #9B59B6; }
+.expr-card.orange { border-top-color: #E67E22; }
+.expr-card.navy { border-top-color: #1A3550; }
+.expr-card.green { border-top-color: #27AE60; }
+.expr-card.red { border-top-color: #E74C3C; }
+.expr-jp { font-size: 16px; font-weight: 900; color: #1A3550; font-family: 'Noto Sans JP', sans-serif; line-height: 1.5; }
+.expr-kanji { font-size: 13px; color: #28B4A6; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+.expr-card.purple .expr-kanji { color: #9B59B6; }
+.expr-card.orange .expr-kanji { color: #E67E22; }
+.expr-card.navy .expr-kanji { color: #1A3550; }
+.expr-card.green .expr-kanji { color: #27AE60; }
+.expr-card.red .expr-kanji { color: #E74C3C; }
+.expr-ko { font-size: 12px; color: #666; padding-top: 4px; border-top: 1px solid #EEF2F6; }
+
+/* ===== 조사 테이블 ===== */
+.particle-table {
+  background: white; border-radius: 16px; overflow: hidden;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+}
+.particle-row {
+  display: flex; align-items: stretch;
+  border-bottom: 1px solid #EEF2F6;
+}
+.particle-row:last-child { border-bottom: none; }
+.particle-row.header { background: #1A3550; }
+.particle-cell { flex: 1; padding: 12px 16px; font-size: 14px; font-weight: 700; display: flex; align-items: center; }
+.particle-row.header .particle-cell { color: white; font-size: 12px; }
+.p-particle {
+  flex: 0 0 80px; background: #EEF7F6;
+  justify-content: center;
+  font-size: 20px; font-weight: 900; color: #28B4A6;
+  font-family: 'Noto Sans JP', sans-serif;
+  border-right: 2px solid #D0ECE8;
+}
+.particle-row.header .p-particle { background: transparent; border-right-color: rgba(255,255,255,0.2); }
+.p-meaning { flex: 0 0 110px; color: #555; font-weight: 400; font-size: 13px; flex-direction: column; gap: 2px; align-items: flex-start; }
+.p-meaning small { font-size: 10px; color: #aaa; }
+.p-example { color: #1A3550; font-size: 13px; font-family: 'Noto Sans JP', sans-serif; }
+.p-example .hl { color: #28B4A6; font-weight: 900; }
+
+.footer { text-align: center; margin-top: 8px; font-size: 11px; color: #bbb; max-width: 680px; margin: 16px auto 0; }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>みんなの日本語 初級Ⅰ · 第1課</h1>
+  <h2>初めまして — 문형 & 표현 정리</h2>
+</div>
+
+<!-- ① 문형 패턴 -->
+<div class="section">
+  <div class="section-title">
+    <div class="badge badge-teal">①</div>
+    <h3>문형 패턴 (文型パターン)</h3>
+  </div>
+
+  <div class="pattern-card positive">
+    <div class="pattern-head">
+      <div class="pattern-num">1</div>
+      <div class="pattern-jp"><span class="hl">N</span> は <span class="hl">N</span> です。</div>
+      <div class="pattern-ko">〜은/는 〜입니다</div>
+    </div>
+    <div class="pattern-divider"></div>
+    <div class="pattern-examples">
+      <div class="example">
+        <div class="ex-jp">わたし<span class="hl">は</span> マイク・ミラー<span class="hl">です</span>。</div>
+        <div class="ex-ko">저는 마이크 밀러입니다.</div>
+      </div>
+      <div class="example">
+        <div class="ex-jp">ミラーさん<span class="hl">は</span> かいしゃいん<span class="hl">です</span>。</div>
+        <div class="ex-ko">밀러 씨는 회사원입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-card negative">
+    <div class="pattern-head">
+      <div class="pattern-num">2</div>
+      <div class="pattern-jp"><span class="hl">N</span> は <span class="hl-red">N じゃ（では）ありません</span>。</div>
+      <div class="pattern-ko">〜은/는 〜이/가 아닙니다</div>
+    </div>
+    <div class="pattern-divider"></div>
+    <div class="pattern-examples">
+      <div class="example">
+        <div class="ex-jp">サントスさんは がくせい<span class="hl-red">じゃ ありません</span>。</div>
+        <div class="ex-ko">산토스 씨는 학생이 아닙니다.</div>
+      </div>
+      <div class="example">
+        <div class="ex-jp">わたしは せんせい<span class="hl-red">では ありません</span>。</div>
+        <div class="ex-ko">저는 선생님이 아닙니다. (격식체)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-card question">
+    <div class="pattern-head">
+      <div class="pattern-num">3</div>
+      <div class="pattern-jp"><span class="hl">N</span> は <span class="hl">N</span> です<span class="hl-purple">か</span>。</div>
+      <div class="pattern-ko">〜은/는 〜입니까?</div>
+    </div>
+    <div class="pattern-divider"></div>
+    <div class="pattern-examples">
+      <div class="example">
+        <div class="ex-jp">ミラーさんは かいしゃいんです<span class="hl-purple">か</span>。</div>
+        <div class="ex-ko">밀러 씨는 회사원입니까?</div>
+      </div>
+      <div class="example">
+        <div class="ex-jp">　→ はい、かいしゃいんです。 ／ いいえ、じゃ ありません。</div>
+        <div class="ex-ko">　→ 네, 회사원입니다. / 아니오, 아닙니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-card also">
+    <div class="pattern-head">
+      <div class="pattern-num">4</div>
+      <div class="pattern-jp"><span class="hl">N</span> <span class="hl">も</span> 〜です。</div>
+      <div class="pattern-ko">〜도 〜입니다</div>
+    </div>
+    <div class="pattern-divider"></div>
+    <div class="pattern-examples">
+      <div class="example">
+        <div class="ex-jp">ミラーさんは かいしゃいんです。グプタさん<span class="hl">も</span> かいしゃいんです。</div>
+        <div class="ex-ko">밀러 씨는 회사원입니다. 굽타 씨도 회사원입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-card no">
+    <div class="pattern-head">
+      <div class="pattern-num">5</div>
+      <div class="pattern-jp"><span class="hl">N1</span> <span class="hl-green">の</span> <span class="hl">N2</span></div>
+      <div class="pattern-ko">〜의 〜 (소속·소유)</div>
+    </div>
+    <div class="pattern-divider"></div>
+    <div class="pattern-examples">
+      <div class="example">
+        <div class="ex-jp">ミラーさんは IMC<span class="hl-green">の</span> しゃいんです。</div>
+        <div class="ex-ko">밀러 씨는 IMC 사원입니다.</div>
+      </div>
+      <div class="example">
+        <div class="ex-jp">ワットさんは さくらだいがく<span class="hl-green">の</span> せんせいです。</div>
+        <div class="ex-ko">왓트 씨는 사쿠라대학 선생님입니다.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pattern-card san">
+    <div class="pattern-head">
+      <div class="pattern-num">6</div>
+      <div class="pattern-jp">〜<span class="hl-crimson">さん</span> ／ 〜<span class="hl-crimson">ちゃん</span></div>
+      <div class="pattern-ko">〜씨 (정중) / 〜짱 (친근)</div>
+    </div>
+    <div class="pattern-divider"></div>
+    <div class="pattern-examples">
+      <div class="example">
+        <div class="ex-jp">あの かたは ミラー<span class="hl-crimson">さん</span>です。</div>
+        <div class="ex-ko">저분은 밀러 씨입니다. ※ 자신의 이름에는 붙이지 않음</div>
+      </div>
+      <div class="example">
+        <div class="ex-jp">テレーザ<span class="hl-crimson">ちゃん</span>は 9さいです。</div>
+        <div class="ex-ko">테레자는 9살입니다.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 핵심 표현 -->
+<div class="section">
+  <div class="section-title">
+    <div class="badge badge-purple">②</div>
+    <h3>핵심 표현 (重要表現)</h3>
+  </div>
+  <div class="expr-grid">
+    <div class="expr-card">
+      <div class="expr-jp">はじめまして。</div>
+      <div class="expr-kanji">初めまして</div>
+      <div class="expr-ko">처음 뵙겠습니다.</div>
+    </div>
+    <div class="expr-card purple">
+      <div class="expr-jp">どうぞ よろしく<br>おねがいします。</div>
+      <div class="expr-kanji">どうぞ よろしく お願いします</div>
+      <div class="expr-ko">잘 부탁드립니다.</div>
+    </div>
+    <div class="expr-card orange">
+      <div class="expr-jp">しつれいですが、<br>おなまえは？</div>
+      <div class="expr-kanji">失礼ですが、お名前は？</div>
+      <div class="expr-ko">실례지만, 성함은요?</div>
+    </div>
+    <div class="expr-card navy">
+      <div class="expr-jp">こちらは 〜さんです。</div>
+      <div class="expr-kanji"></div>
+      <div class="expr-ko">이쪽은 〜씨입니다. (소개)</div>
+    </div>
+    <div class="expr-card green">
+      <div class="expr-jp">〜から きました。</div>
+      <div class="expr-kanji">〜から 来ました</div>
+      <div class="expr-ko">〜에서 왔습니다.</div>
+    </div>
+    <div class="expr-card red">
+      <div class="expr-jp">なんさいですか。<br>（おいくつですか。）</div>
+      <div class="expr-kanji">何歳ですか</div>
+      <div class="expr-ko">몇 살입니까? (정중: おいくつ)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ③ 조사 정리 -->
+<div class="section">
+  <div class="section-title">
+    <div class="badge badge-orange">③</div>
+    <h3>조사 정리 (助詞まとめ)</h3>
+  </div>
+  <div class="particle-table">
+    <div class="particle-row header">
+      <div class="particle-cell p-particle">조사</div>
+      <div class="particle-cell p-meaning">의미</div>
+      <div class="particle-cell">예문</div>
+    </div>
+    <div class="particle-row">
+      <div class="particle-cell p-particle">は</div>
+      <div class="particle-cell p-meaning">〜은/는<small>주제 표시</small></div>
+      <div class="particle-cell p-example">わたし<span class="hl">は</span> がくせいです。</div>
+    </div>
+    <div class="particle-row">
+      <div class="particle-cell p-particle">も</div>
+      <div class="particle-cell p-meaning">〜도<small>포함·추가</small></div>
+      <div class="particle-cell p-example">マリアさん<span class="hl">も</span> ブラジルじんです。</div>
+    </div>
+    <div class="particle-row">
+      <div class="particle-cell p-particle">の</div>
+      <div class="particle-cell p-meaning">〜의<small>소속·소유</small></div>
+      <div class="particle-cell p-example">IMC<span class="hl">の</span> しゃいんです。</div>
+    </div>
+    <div class="particle-row">
+      <div class="particle-cell p-particle">か</div>
+      <div class="particle-cell p-meaning">〜입니까?<small>의문</small></div>
+      <div class="particle-cell p-example">がくせいです<span class="hl">か</span>。</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">みんなの日本語 初級Ⅰ · 第1課 初めまして</div>
+
+</body>
+</html>
