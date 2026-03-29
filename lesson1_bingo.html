@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1과 빙고 게임</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', 'Malgun Gothic', sans-serif;
+  background: #1A3550;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center;
+  padding: 24px 16px 40px;
+}
+.header { text-align: center; margin-bottom: 20px; }
+.header h1 { font-size: 13px; color: #28B4A6; letter-spacing: 2px; margin-bottom: 4px; }
+.header h2 { font-size: 26px; font-weight: 900; color: white; }
+
+.word-pool-wrap {
+  width: 100%; max-width: 640px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+.pool-title { font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 12px; text-align: center; letter-spacing: 1px; }
+.word-pool { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+.word-chip {
+  background: white; border: 2px solid transparent;
+  border-radius: 20px; padding: 6px 13px;
+  cursor: pointer; transition: all 0.2s;
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+}
+.word-chip:hover { background: #E8F7F5; border-color: #28B4A6; }
+.word-chip.selected { background: #28B4A6; border-color: #28B4A6; }
+.word-chip.selected .chip-jp { color: white; }
+.word-chip.selected .chip-ko { color: rgba(255,255,255,0.8); }
+.word-chip.used { opacity: 0.3; cursor: default; pointer-events: none; }
+.chip-jp { font-size: 13px; font-weight: 900; color: #1A3550; font-family: 'Noto Sans JP', sans-serif; }
+.chip-ko { font-size: 10px; color: #888; }
+
+.selected-hint { text-align: center; margin-bottom: 12px; min-height: 28px; }
+.selected-hint span {
+  background: #28B4A6; color: white; font-size: 13px; font-weight: 700;
+  padding: 4px 16px; border-radius: 20px;
+  font-family: 'Noto Sans JP', sans-serif; display: inline-block;
+}
+
+.bingo-wrap { width: 100%; max-width: 380px; margin-bottom: 16px; }
+.bingo-title { text-align: center; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 10px; letter-spacing: 1px; }
+.bingo-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bingo-cell {
+  background: rgba(255,255,255,0.1); border: 2px dashed rgba(255,255,255,0.25);
+  border-radius: 12px; aspect-ratio: 1;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; padding: 8px; min-height: 90px;
+}
+.bingo-cell.filled { background: white; border: 2px solid white; }
+.bingo-cell.filled:hover { background: #FFE8E8; border-color: #E74C3C; }
+.bingo-cell.checked { background: #28B4A6 !important; border-color: #28B4A6 !important; }
+.bingo-cell.bingo-line { background: #F5A623 !important; border-color: #F5A623 !important; }
+.cell-jp { font-size: 15px; font-weight: 900; color: #1A3550; font-family: 'Noto Sans JP', sans-serif; text-align: center; line-height: 1.3; }
+.bingo-cell.checked .cell-jp, .bingo-cell.bingo-line .cell-jp { color: white; }
+.cell-ko { font-size: 10px; color: #888; margin-top: 2px; }
+.bingo-cell.checked .cell-ko, .bingo-cell.bingo-line .cell-ko { color: rgba(255,255,255,0.8); }
+.cell-empty { font-size: 24px; color: rgba(255,255,255,0.2); }
+
+.bingo-celebrate { display: none; text-align: center; margin-bottom: 16px; animation: pop 0.4s ease; }
+.bingo-celebrate.show { display: block; }
+@keyframes pop { 0% { transform: scale(0.5); opacity: 0; } 70% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+.bingo-celebrate p { font-size: 32px; font-weight: 900; color: #F5A623; }
+
+.bingo-count { text-align: center; margin-bottom: 16px; }
+.bingo-count span { background: rgba(255,255,255,0.1); color: white; font-size: 14px; font-weight: 700; padding: 6px 20px; border-radius: 20px; }
+.count-num { color: #F5A623; font-size: 20px; font-weight: 900; }
+
+.btns { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; }
+.btn { padding: 11px 24px; border-radius: 25px; border: none; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'Noto Sans JP', 'Malgun Gothic', sans-serif; transition: all 0.2s; }
+.btn-reset { background: white; color: #1A3550; }
+.btn-reset:hover { background: #EEF4F8; }
+.btn-clear { background: rgba(255,255,255,0.15); color: white; border: 2px solid rgba(255,255,255,0.3); }
+.btn-clear:hover { background: rgba(255,255,255,0.25); }
+
+.hint { color: rgba(255,255,255,0.35); font-size: 11px; text-align: center; line-height: 1.8; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>みんなの日本語 · 第1課</h1>
+  <h2>빙고 게임 🎯</h2>
+</div>
+
+<div class="word-pool-wrap">
+  <div class="pool-title">① 아래 단어 중 9개를 골라 빙고판에 넣으세요</div>
+  <div class="word-pool" id="word-pool"></div>
+</div>
+
+<div class="selected-hint" id="selected-hint"></div>
+
+<div class="bingo-wrap">
+  <div class="bingo-title">② 뜻을 들으면 해당 칸을 클릭!</div>
+  <div class="bingo-grid" id="bingo-grid"></div>
+</div>
+
+<div class="bingo-celebrate" id="celebrate">
+  <p>🎉 빙고!! 🎉</p>
+</div>
+
+<div class="bingo-count">
+  <span>빙고 <span class="count-num" id="bingo-num">0</span>줄</span>
+</div>
+
+<div class="btns">
+  <button class="btn btn-reset" onclick="resetAll()">↺ 처음부터</button>
+  <button class="btn btn-clear" onclick="clearBoard()">🗑 빙고판 비우기</button>
+</div>
+
+<div class="hint">
+  단어 클릭 → 빙고판 빈 칸 클릭 순서로 넣어요<br>
+  채워진 칸 클릭하면 체크!
+</div>
+
+<script>
+const words = [
+  // 사람 관련
+  { jp: "わたし",       ko: "나, 저" },
+  { jp: "あなた",       ko: "당신" },
+  { jp: "あのひと",     ko: "저 사람" },
+  { jp: "だれ",         ko: "누구" },
+  // 직업
+  { jp: "せんせい",     ko: "선생님" },
+  { jp: "きょうし",     ko: "교사" },
+  { jp: "がくせい",     ko: "학생" },
+  { jp: "かいしゃいん", ko: "회사원" },
+  { jp: "しゃいん",     ko: "사원" },
+  { jp: "ぎんこういん", ko: "은행원" },
+  { jp: "いしゃ",       ko: "의사" },
+  { jp: "けんきゅうしゃ", ko: "연구자" },
+  // 장소
+  { jp: "だいがく",     ko: "대학교" },
+  { jp: "びょういん",   ko: "병원" },
+  // 나이
+  { jp: "なんさい",     ko: "몇 살" },
+  { jp: "はい",         ko: "예, 네" },
+  { jp: "いいえ",       ko: "아니오" },
+  // 나라
+  { jp: "アメリカ",     ko: "미국" },
+  { jp: "イギリス",     ko: "영국" },
+  { jp: "インド",       ko: "인도" },
+  { jp: "インドネシア", ko: "인도네시아" },
+  { jp: "かんこく",     ko: "한국" },
+  { jp: "タイ",         ko: "태국" },
+  { jp: "ちゅうごく",   ko: "중국" },
+  { jp: "ドイツ",       ko: "독일" },
+  { jp: "にほん",       ko: "일본" },
+  { jp: "ブラジル",     ko: "브라질" },
+];
+
+let board = Array(9).fill(null);
+let checked = Array(9).fill(false);
+let selectedWord = null;
+let bingoCount = 0;
+
+const LINES = [
+  [0,1,2],[3,4,5],[6,7,8],
+  [0,3,6],[1,4,7],[2,5,8],
+  [0,4,8],[2,4,6]
+];
+
+function render() {
+  const pool = document.getElementById('word-pool');
+  pool.innerHTML = '';
+  words.forEach((w, i) => {
+    const used = board.includes(i);
+    const isSelected = selectedWord === i;
+    const chip = document.createElement('div');
+    chip.className = 'word-chip' + (used ? ' used' : '') + (isSelected ? ' selected' : '');
+    chip.innerHTML = `<span class="chip-jp">${w.jp}</span><span class="chip-ko">${w.ko}</span>`;
+    chip.onclick = () => selectWord(i);
+    pool.appendChild(chip);
+  });
+
+  const hint = document.getElementById('selected-hint');
+  hint.innerHTML = selectedWord !== null
+    ? `<span>${words[selectedWord].jp} 선택됨 → 빙고판 빈 칸을 클릭하세요!</span>`
+    : '';
+
+  const grid = document.getElementById('bingo-grid');
+  grid.innerHTML = '';
+  const lineCells = new Set();
+  let newBingo = 0;
+  LINES.forEach(line => {
+    if (line.every(i => checked[i] && board[i] !== null)) {
+      newBingo++;
+      line.forEach(i => lineCells.add(i));
+    }
+  });
+  bingoCount = newBingo;
+  document.getElementById('bingo-num').textContent = bingoCount;
+  bingoCount > 0
+    ? document.getElementById('celebrate').classList.add('show')
+    : document.getElementById('celebrate').classList.remove('show');
+
+  board.forEach((wordIdx, cellIdx) => {
+    const cell = document.createElement('div');
+    const isBingoLine = lineCells.has(cellIdx);
+    const isChecked = checked[cellIdx];
+    cell.className = 'bingo-cell'
+      + (wordIdx !== null ? ' filled' : '')
+      + (isChecked && !isBingoLine ? ' checked' : '')
+      + (isBingoLine ? ' bingo-line' : '');
+    if (wordIdx !== null) {
+      const w = words[wordIdx];
+      cell.innerHTML = `<div class="cell-jp">${w.jp}</div><div class="cell-ko">${w.ko}</div>`;
+    } else {
+      cell.innerHTML = `<div class="cell-empty">+</div>`;
+    }
+    cell.onclick = () => cellClick(cellIdx);
+    grid.appendChild(cell);
+  });
+}
+
+function selectWord(idx) {
+  if (board.includes(idx)) return;
+  selectedWord = selectedWord === idx ? null : idx;
+  render();
+}
+
+function cellClick(cellIdx) {
+  if (board[cellIdx] !== null && selectedWord === null) {
+    checked[cellIdx] = !checked[cellIdx];
+    render();
+    return;
+  }
+  if (selectedWord !== null && board[cellIdx] === null) {
+    board[cellIdx] = selectedWord;
+    selectedWord = null;
+    render();
+  }
+}
+
+function clearBoard() {
+  board = Array(9).fill(null);
+  checked = Array(9).fill(false);
+  selectedWord = null;
+  render();
+}
+
+function resetAll() {
+  board = Array(9).fill(null);
+  checked = Array(9).fill(false);
+  selectedWord = null;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
