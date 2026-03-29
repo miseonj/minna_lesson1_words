@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>2과 단어 슬라이드</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', 'Malgun Gothic', sans-serif;
+  background: #1A2535;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 20px;
+}
+.header { text-align: center; margin-bottom: 16px; }
+.header h1 { font-size: 12px; color: #28B4A6; letter-spacing: 2px; margin-bottom: 2px; }
+.header h2 { font-size: 20px; font-weight: 900; color: white; }
+
+.tabs {
+  display: flex; gap: 6px; margin-bottom: 16px;
+  flex-wrap: wrap; justify-content: center;
+}
+.tab {
+  padding: 5px 14px; border-radius: 20px;
+  border: 2px solid rgba(255,255,255,0.2);
+  background: transparent; color: rgba(255,255,255,0.5);
+  font-size: 12px; cursor: pointer; transition: all 0.2s;
+  font-family: 'Noto Sans JP', 'Malgun Gothic', sans-serif;
+}
+.tab:hover, .tab.active {
+  background: rgba(255,255,255,0.15); color: white;
+  border-color: rgba(255,255,255,0.6);
+}
+
+.slide-wrap { width: 100%; max-width: 680px; }
+.slide { display: none; background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+.slide.active { display: block; }
+
+.slide-header {
+  padding: 16px 24px 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-badge {
+  font-size: 11px; font-weight: 900; color: white;
+  padding: 3px 12px; border-radius: 10px; letter-spacing: 1px;
+}
+.slide-title {
+  font-size: 18px; font-weight: 900; color: #1A2535;
+  font-family: 'Noto Sans JP', sans-serif; flex: 1;
+}
+.word-count {
+  font-size: 12px; color: #aaa;
+  background: #F0F4F8; padding: 2px 10px; border-radius: 10px;
+}
+
+/* 지시어 */
+.demo-section { padding: 0 20px 20px; }
+.demo-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin-bottom: 12px;
+}
+.demo-card {
+  border-radius: 14px; border: 2px solid #EEF2F6;
+  padding: 14px 8px; text-align: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.demo-card:hover { border-color: #28B4A6; background: #E8F7F5; }
+.demo-card.hl { background: #28B4A6 !important; border-color: #28B4A6 !important; }
+.demo-card.hl * { color: white !important; }
+.demo-emoji { font-size: 32px; margin-bottom: 6px; }
+.demo-jp { font-size: 22px; font-weight: 900; color: #1A2535; font-family: 'Noto Sans JP', sans-serif; }
+.demo-ko { font-size: 11px; color: #888; margin-top: 3px; }
+.demo-sub { font-size: 10px; margin-top: 2px; }
+
+.kono-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  margin-bottom: 12px;
+}
+.kono-card {
+  border-radius: 12px; border: 2px solid #EEF2F6;
+  padding: 10px 8px; text-align: center;
+  cursor: pointer; transition: all 0.2s;
+}
+.kono-card:hover { border-color: #9B59B6; background: #F5EEF8; }
+.kono-card.hl { background: #9B59B6 !important; border-color: #9B59B6 !important; }
+.kono-card.hl * { color: white !important; }
+.kono-jp { font-size: 19px; font-weight: 900; color: #1A2535; font-family: 'Noto Sans JP', sans-serif; }
+.kono-ko { font-size: 11px; color: #888; margin-top: 2px; }
+
+.tip-box {
+  background: #FFF8E8; border-radius: 10px;
+  padding: 10px 14px; border-left: 3px solid #F5A623;
+  font-size: 12px; color: #555; line-height: 1.8;
+}
+
+/* 단어 그리드 */
+.words-section { padding: 4px 20px 20px; }
+.words-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+.word-card {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px;
+  background: #F8FAFB; border: 1.5px solid #EEF2F6;
+  cursor: pointer; transition: all 0.2s;
+}
+.word-card:hover { background: #E8F7F5; border-color: #28B4A6; }
+.word-card.hl { background: #28B4A6 !important; border-color: #28B4A6 !important; }
+.word-card.hl * { color: white !important; }
+.wc-emoji { font-size: 24px; flex-shrink: 0; }
+.wc-jp { font-size: 16px; font-weight: 900; color: #1A2535; font-family: 'Noto Sans JP', sans-serif; }
+.wc-kanji { font-size: 11px; color: #28B4A6; font-weight: 700; font-family: 'Noto Sans JP', sans-serif; }
+.wc-ko { font-size: 12px; color: #888; margin-left: auto; white-space: nowrap; }
+
+.controls {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; margin-top: 16px;
+}
+.nav-btn {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  border: 2px solid rgba(255,255,255,0.25);
+  color: white; font-size: 20px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.22); }
+.nav-btn:disabled { opacity: 0.25; cursor: default; }
+.slide-counter { color: rgba(255,255,255,0.7); font-size: 13px; min-width: 60px; text-align: center; }
+.slide-counter span { color: white; font-weight: 700; font-size: 16px; }
+.hint { color: rgba(255,255,255,0.3); font-size: 11px; text-align: center; margin-top: 10px; }
+
+@media (max-width: 500px) {
+  .words-grid { grid-template-columns: 1fr; }
+  .demo-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>みんなの日本語 · 第2課</h1>
+  <h2>これから お世話に なります</h2>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="goTo(0,this)">지시어</button>
+  <button class="tab" onclick="goTo(1,this)">문구류</button>
+  <button class="tab" onclick="goTo(2,this)">소지품</button>
+  <button class="tab" onclick="goTo(3,this)">전자기기</button>
+  <button class="tab" onclick="goTo(4,this)">기타</button>
+</div>
+
+<div class="slide-wrap">
+
+  <!-- 1. 지시어 -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-header">
+      <span class="section-badge" style="background:#28B4A6">지시어</span>
+      <span class="slide-title">これ・それ・あれ・どれ</span>
+    </div>
+    <div class="demo-section">
+      <div class="demo-grid">
+        <div class="demo-card" onclick="this.classList.toggle('hl')">
+          <div class="demo-emoji">👆</div>
+          <div class="demo-jp">これ</div>
+          <div class="demo-ko">이것</div>
+          <div class="demo-sub" style="color:#28B4A6">화자 가까이</div>
+        </div>
+        <div class="demo-card" onclick="this.classList.toggle('hl')">
+          <div class="demo-emoji">👉</div>
+          <div class="demo-jp">それ</div>
+          <div class="demo-ko">그것</div>
+          <div class="demo-sub" style="color:#9B59B6">청자 가까이</div>
+        </div>
+        <div class="demo-card" onclick="this.classList.toggle('hl')">
+          <div class="demo-emoji">🫵</div>
+          <div class="demo-jp">あれ</div>
+          <div class="demo-ko">저것</div>
+          <div class="demo-sub" style="color:#E67E22">둘 다 멀리</div>
+        </div>
+        <div class="demo-card" onclick="this.classList.toggle('hl')">
+          <div class="demo-emoji">❓</div>
+          <div class="demo-jp">どれ</div>
+          <div class="demo-ko">어느 것</div>
+          <div class="demo-sub" style="color:#E74C3C">의문</div>
+        </div>
+      </div>
+      <div class="kono-grid">
+        <div class="kono-card" onclick="this.classList.toggle('hl')">
+          <div class="kono-jp">この〜</div>
+          <div class="kono-ko">이 〜</div>
+        </div>
+        <div class="kono-card" onclick="this.classList.toggle('hl')">
+          <div class="kono-jp">その〜</div>
+          <div class="kono-ko">그 〜</div>
+        </div>
+        <div class="kono-card" onclick="this.classList.toggle('hl')">
+          <div class="kono-jp">あの〜</div>
+          <div class="kono-ko">저 〜</div>
+        </div>
+      </div>
+      <div class="tip-box">
+        💡 <strong>この/その/あの</strong> 뒤에는 반드시 명사가 와요!<br>
+        예: <strong>この</strong>ほん (이 책) · <strong>その</strong>かばん (그 가방) · <strong>あの</strong>くるま (저 차)
+      </div>
+    </div>
+  </div>
+
+  <!-- 2. 문구류 -->
+  <div class="slide" id="slide-1">
+    <div class="slide-header">
+      <span class="section-badge" style="background:#9B59B6">문구류</span>
+      <span class="slide-title">文房具 (ぶんぼうぐ)</span>
+      <span class="word-count">11개</span>
+    </div>
+    <div class="words-section">
+      <div class="words-grid">
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📖</span>
+          <div><div class="wc-jp">ほん</div><div class="wc-kanji">本</div></div>
+          <span class="wc-ko">책</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📚</span>
+          <div><div class="wc-jp">じしょ</div><div class="wc-kanji">辞書</div></div>
+          <span class="wc-ko">사전</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📰</span>
+          <div><div class="wc-jp">ざっし</div><div class="wc-kanji">雑誌</div></div>
+          <span class="wc-ko">잡지</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🗞️</span>
+          <div><div class="wc-jp">しんぶん</div><div class="wc-kanji">新聞</div></div>
+          <span class="wc-ko">신문</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📓</span>
+          <div><div class="wc-jp">ノート</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">노트</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📒</span>
+          <div><div class="wc-jp">てちょう</div><div class="wc-kanji">手帳</div></div>
+          <span class="wc-ko">수첩</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🪪</span>
+          <div><div class="wc-jp">めいし</div><div class="wc-kanji">名刺</div></div>
+          <span class="wc-ko">명함</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🃏</span>
+          <div><div class="wc-jp">カード</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">카드</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">✏️</span>
+          <div><div class="wc-jp">えんぴつ</div><div class="wc-kanji">鉛筆</div></div>
+          <span class="wc-ko">연필</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🖊️</span>
+          <div><div class="wc-jp">ボールペン</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">볼펜</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🖋️</span>
+          <div><div class="wc-jp">シャープペンシル</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">샤프펜슬</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. 소지품 -->
+  <div class="slide" id="slide-2">
+    <div class="slide-header">
+      <span class="section-badge" style="background:#E67E22">소지품</span>
+      <span class="slide-title">持ち物 (もちもの)</span>
+      <span class="word-count">4개</span>
+    </div>
+    <div class="words-section">
+      <div class="words-grid">
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🔑</span>
+          <div><div class="wc-jp">かぎ</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">열쇠</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">⌚</span>
+          <div><div class="wc-jp">とけい</div><div class="wc-kanji">時計</div></div>
+          <span class="wc-ko">시계</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">☂️</span>
+          <div><div class="wc-jp">かさ</div><div class="wc-kanji">傘</div></div>
+          <span class="wc-ko">우산</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">👜</span>
+          <div><div class="wc-jp">かばん</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">가방</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. 전자기기 -->
+  <div class="slide" id="slide-3">
+    <div class="slide-header">
+      <span class="section-badge" style="background:#2980B9">전자기기</span>
+      <span class="slide-title">電気製品 (でんきせいひん)</span>
+      <span class="word-count">6개</span>
+    </div>
+    <div class="words-section">
+      <div class="words-grid">
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">💿</span>
+          <div><div class="wc-jp">CD</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">CD</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📺</span>
+          <div><div class="wc-jp">テレビ</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">텔레비전</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📻</span>
+          <div><div class="wc-jp">ラジオ</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">라디오</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">📷</span>
+          <div><div class="wc-jp">カメラ</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">카메라</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">💻</span>
+          <div><div class="wc-jp">コンピューター</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">컴퓨터</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🚗</span>
+          <div><div class="wc-jp">くるま</div><div class="wc-kanji">車</div></div>
+          <span class="wc-ko">차, 자동차</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. 기타 -->
+  <div class="slide" id="slide-4">
+    <div class="slide-header">
+      <span class="section-badge" style="background:#27AE60">기타</span>
+      <span class="slide-title">その他 (そのた)</span>
+      <span class="word-count">9개</span>
+    </div>
+    <div class="words-section">
+      <div class="words-grid">
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🪑</span>
+          <div><div class="wc-jp">いす</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">의자</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🗂️</span>
+          <div><div class="wc-jp">つくえ</div><div class="wc-kanji">机</div></div>
+          <span class="wc-ko">책상</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🍫</span>
+          <div><div class="wc-jp">チョコレート</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">초콜릿</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">☕</span>
+          <div><div class="wc-jp">コーヒー</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">커피</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🎁</span>
+          <div><div class="wc-jp">おみやげ</div><div class="wc-kanji">お土産</div></div>
+          <span class="wc-ko">토산품, 기념품</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🇬🇧</span>
+          <div><div class="wc-jp">えいご</div><div class="wc-kanji">英語</div></div>
+          <span class="wc-ko">영어</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">🇯🇵</span>
+          <div><div class="wc-jp">にほんご</div><div class="wc-kanji">日本語</div></div>
+          <span class="wc-ko">일본어</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">❓</span>
+          <div><div class="wc-jp">なん</div><div class="wc-kanji">何</div></div>
+          <span class="wc-ko">무엇</span>
+        </div>
+        <div class="word-card" onclick="this.classList.toggle('hl')">
+          <span class="wc-emoji">💡</span>
+          <div><div class="wc-jp">そう</div><div class="wc-kanji"></div></div>
+          <span class="wc-ko">그렇다</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="controls">
+  <button class="nav-btn" id="prev-btn" onclick="prev()" disabled>‹</button>
+  <div class="slide-counter"><span id="cur">1</span> / 5</div>
+  <button class="nav-btn" id="next-btn" onclick="next()">›</button>
+</div>
+<div class="hint">← → 방향키로 넘기기 · 단어 클릭하면 강조!</div>
+
+<script>
+let current = 0;
+const total = 5;
+
+function goTo(idx, btn) {
+  document.querySelectorAll('.slide').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('slide-' + idx).classList.add('active');
+  if (btn) btn.classList.add('active');
+  else document.querySelectorAll('.tab')[idx].classList.add('active');
+  current = idx;
+  document.getElementById('cur').textContent = idx + 1;
+  document.getElementById('prev-btn').disabled = idx === 0;
+  document.getElementById('next-btn').disabled = idx === total - 1;
+}
+
+function prev() { if (current > 0) goTo(current - 1); }
+function next() { if (current < total - 1) goTo(current + 1); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight') next();
+  else if (e.key === 'ArrowLeft') prev();
+});
+</script>
+</body>
+</html>
